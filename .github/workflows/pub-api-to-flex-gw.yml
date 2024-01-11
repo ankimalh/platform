@@ -1,0 +1,230 @@
+name: Publish to MuleSoft Exchange
+
+on:
+  push:
+    branches:
+      - main
+env:
+  FLEX_VERSION: '1.3.0'
+  GATEWAY_NAME: 'flex-gw-1'
+  ANYPOINT_CLIENT_ID: ${{ secrets.ANYPOINT_CLIENT_ID }}
+  ANYPOINT_CLIENT_SECRET: ${{ secrets.ANYPOINT_CLIENT_SECRET }}
+  ANYPOINT_ORG: ${{ secrets.ANYPOINT_ORG }}
+  ANYPOINT_ENVIRONMENT: ${{ secrets.ANYPOINT_ENVIRONMENT }}
+  FLEX_GW_AGENT_ID: ${{ secrets.FLEX_GW_AGENT_ID }}
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      # - name: Install jq
+      #   run: sudo apt-get install jq
+          
+      - name: Install api-catalog cli
+        run: |
+          sudo apt-get update
+          npm install -g api-catalog-cli@latest
+
+      - name: Publish to MuleSoft Exchange
+        run: | 
+          response=$(api-catalog publish-asset --host=anypoint.mulesoft.com -d catalog.yaml --organization=$ANYPOINT_ORG --client_id $ANYPOINT_CLIENT_ID --client_secret $ANYPOINT_CLIENT_SECRET)
+
+          echo "$response"
+          
+          # Capture Asset ID
+          asset_id=$(echo "$response" | awk '/Asset ID:/ {print $NF}')
+          echo "Asset_ID: $asset_id"
+          # echo "::set-output name=asset_id::$asset_id"
+
+          # Capture Version
+          version=$(echo "$response" | awk '/Version:/ {print $NF}')
+          echo "Version: $version"
+          # echo "::set-output name=version::$version"
+
+          echo "ASSET_ID=$asset_id" >> $GITHUB_ENV
+          echo "VERSION=$version" >> $GITHUB_ENV
+
+      - name: Install anypoint-cli-v4 cli
+        run: |
+          npm i -g anypoint-cli-v4
+          anypoint-cli-v4 plugins:install anypoint-cli-governance-plugin      
+
+      - name: API Governance
+        run: |
+
+          asset_id=$ASSET_ID
+          version=$VERSION
+          
+          echo "$asset_id"
+          echo "$version"
+
+          # Construct the URL
+          URL=$ANYPOINT_ORG/$asset_id/$version
+
+          echo "Constructed URL: $URL"
+          
+          response=$(anypoint-cli-v4 governance api validate --client_id=$ANYPOINT_CLIENT_ID --client_secret=$ANYPOINT_CLIENT_SECRET --organization=$ANYPOINT_ORG $URL --remote-rulesets 68ef9520-24e9-4cf2-b2f5-620025690913/https-enforcement/1.1.1 --remote)
+           status_code=$(echo "${response: -3}") # Extracting the status code from the response
+
+          if [ $status_code -gt 399 ]; then
+            echo "Anypoint login failed"
+            exit 1
+          fi
+          
+      - name: Anypoint login
+        run: |
+          response=$(curl -s -w "%{http_code}" --location --request POST 'https://anypoint.mulesoft.com/accounts/api/v2/oauth2/token' -o 'login-response' \
+                    --header 'Content-Type: application/json' \
+                    --data-raw '{"grant_type": "client_credentials", "client_id": "${{ secrets.ANYPOINT_CLIENT_ID }}", "client_secret": "${{ secrets.ANYPOINT_CLIENT_SECRET }}"}')
+          status_code=$(echo "${response: -3}") # Extracting the status code from the response
+
+          if [ $status_code -gt 399 ]; then
+            echo "Anypoint login failed"
+            exit 1
+          fi
+
+      - name: Create API instance
+        run: |
+
+          asset_id=$ASSET_ID
+          version=$VERSION
+          
+          echo "$asset_id"
+          echo "$version"
+          
+          login_response=$(cat login-response | jq -r '.access_token')
+
+          response=$(curl -s -w "%{http_code}" --location --request POST "https://anypoint.mulesoft.com/apimanager/api/v1/organizations/$ANYPOINT_ORG/environments/$ANYPOINT_ENVIRONMENT/apis" -o "api-response" \
+                    --header "Authorization: Bearer $login_response" \
+                    --header "Content-Type: application/json" \
+                    --data '{
+                      "spec": {
+                          "groupId": "'"$ANYPOINT_ORG"'",
+                          "assetId": "'"$asset_id"'",
+                          "version": "'"$version"'"
+                      },
+                      "endpoint": {
+                          "deploymentType": "HY",
+                          "uri": "https://httpbin.org:443",
+                          "proxyUri": "http://0.0.0.0:8082/httpbin",
+                          "isCloudHub": null
+                      },
+                      "technology": "flexGateway",
+                      "endpointUri": "https://test.com/shipping/"
+                    }')
+          echo "Command output: $response"
+          status_code=$(echo "${response: -3}") # Extracting the status code from the response
+          echo ${api-response}
+          if [ $status_code -gt 399 ]; then
+            echo "Error occurred while trying to create API instance"
+            exit 1
+          fi
+
+          
+
+      - name: Apply policy
+        run: |
+          api_response=$(cat api-response | jq -r '.id')
+          echo "${api_response}"
+          
+          login_response=$(cat login-response | jq -r '.access_token')
+      
+          status_code=$(curl -s -w "%{http_code}" -o /dev/null --location --request POST "https://anypoint.mulesoft.com/apimanager/api/v1/organizations/$ANYPOINT_ORG/environments/$ANYPOINT_ENVIRONMENT/apis/${api_response}/policies" \
+            --header "Authorization: Bearer $login_response" \
+            --header "Content-Type: application/json" \
+            --data '{
+              "configurationData": {
+                "username": "user",
+                "password": "test"
+              },
+              "pointcutData": null,
+              "assetId": "http-basic-authentication",
+              "assetVersion": "1.3.1",
+              "groupId": "68ef9520-24e9-4cf2-b2f5-620025690913"
+            }')
+      
+          echo "Command output: $status_code"
+      
+          if [ $status_code -gt 399 ]; then
+            echo "Error occurred while trying to apply Basic Auth Policy to the API instance"
+            exit 1
+          fi
+
+      - name: Deploy API
+        run: |
+          set -x
+          api_response=$(cat api-response | jq -r '.id')
+          login_response=$(cat login-response | jq -r '.access_token')     
+          response=$(curl -s -w "%{http_code}" --location --request POST "https://anypoint.mulesoft.com/proxies/xapi/v1/organizations/$ANYPOINT_ORG/environments/$ANYPOINT_ENVIRONMENT/apis/${api_response}/deployments" \
+            --header 'Content-Type: application/json' \
+            --header "Authorization: Bearer $login_response" \
+            --data-raw '{
+              "type": "HY",
+              "gatewayVersion": "'"$FLEX_VERSION"'",
+              "targetId": "'"$FLEX_GW_AGENT_ID"'",
+              "environmentId": "'"$ANYPOINT_ENVIRONMENT"'"
+            }')
+            
+          echo "Command output: $response"
+          status_code=$(echo "${response: -3}") # Extracting the status code from the response
+          
+          if [ $status_code -gt 399 ]; then
+            echo "Error occurred while trying to deploy the API instance"
+            exit 1
+          fi
+          set +x
+
+      - name: Migrate to AEH and set visibility to Member
+        run: |
+          asset_id=$ASSET_ID
+          echo "$asset_id"
+        
+          response=$(curl -X POST \
+          -H "Content-Type: application/json" \
+          -H 'Authorization: Bearer 1460d3e9-61d2-4b94-80a5-d491b1ebfcc1' \
+          -d '[
+                {
+                  "assetId": "petstore",  
+                  "groupId": "'"${ANYPOINT_ORG}"'"
+                }
+              ]' \
+          -w "%{http_code}" \
+          -o response.json \
+          https://anypoint.mulesoft.com/api-experience-hub/api/v1/connections/e3973a31-6c43-4213-96ff-edd26489e009/apiPortals/e223f805-6952-442a-8ee6-cd34eca60c14/assets
+          )
+
+          http_code=$(tail -n1 <<< "$response")
+
+          cat response.json 
+          
+          if [ "$http_code" -eq 200 ]; then
+            echo "HTTP Response Code: $http_code - Success"
+            sleep 5
+          response=$(curl -X PATCH \
+            'https://anypoint.mulesoft.com/api-experience-hub/api/v1/connections/e3973a31-6c43-4213-96ff-edd26489e009/apiPortals/e223f805-6952-442a-8ee6-cd34eca60c14/assets/4fb9ddb8-947e-4547-a309-031906fce82c/shipping-api' \
+            -H 'Content-Type: application/json' \
+            -H 'Authorization: Bearer 3d434001-589d-45fb-a198-2681612d8fca' \
+            -d '{
+                "instancesVisibility": "Public",
+                "minorVersions": [
+                    {
+                        "minorVersion": "1.0",
+                        "profileVisibility": [
+                            "ba75c943-95d4-4218-b1cb-cae7e9b09154"
+                        ]
+                    }
+                ]
+            }' \
+            -w "%{http_code}" \
+            -o response.json
+          )
+
+              
+          else
+            echo "HTTP Response Code: $http_code - Error"
+            exit 1 
+          fi
