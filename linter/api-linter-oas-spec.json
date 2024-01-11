@@ -1,0 +1,228 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API Linter",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Ankit Malhotra",
+      "email": "ankimalh@cisco.com"
+    },
+    "description": "Perform API specification Lint and measure Score"
+  },
+  "paths": {
+    "/score": {
+      "post": {
+        "description": "API specification Lint and Score",
+        "operationId": "post",
+        "tags": ["Linter", "Score"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "options": {
+                    "type": "object",
+                    "properties": {
+                      "ruleset": {
+                        "type": "string"
+                      },
+                      "format": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "content": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "score": {
+                      "type": "integer"
+                    },
+                    "version": {
+                      "type": "string"
+                    },
+                    "lintResults": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "code": {
+                            "type": "string"
+                          },
+                          "message": {
+                            "type": "string"
+                          },
+                          "path": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "severity": {
+                            "type": "integer"
+                          },
+                          "range": {
+                            "type": "object",
+                            "properties": {
+                              "start": {
+                                "type": "object",
+                                "properties": {
+                                  "line": {
+                                    "type": "integer"
+                                  },
+                                  "character": {
+                                    "type": "integer"
+                                  }
+                                }
+                              },
+                              "end": {
+                                "type": "object",
+                                "properties": {
+                                  "line": {
+                                    "type": "integer"
+                                  },
+                                  "character": {
+                                    "type": "integer"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "score": 78,
+                  "lintResults": [
+                    {
+                      "code": "oas3-api-servers",
+                      "message": "OpenAPI \"servers\" must be present and non-empty array.",
+                      "path": [],
+                      "severity": 0,
+                      "range": {
+                        "start": {
+                          "line": 0,
+                          "character": 0
+                        },
+                        "end": {
+                          "line": 12,
+                          "character": 48
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ResponseSchema": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            },
+            "path": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "severity": {
+              "type": "integer"
+            },
+            "range": {
+              "type": "object",
+              "properties": {
+                "start": {
+                  "type": "object",
+                  "properties": {
+                    "line": {
+                      "type": "integer"
+                    },
+                    "character": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "end": {
+                  "type": "object",
+                  "properties": {
+                    "line": {
+                      "type": "integer"
+                    },
+                    "character": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,17 @@
+#%Catalog Descriptor 1.0
+projects:
+  - main: linter/api-linter-oas-spec.json
+    assetId: api-linter-oas-spec
+    version: 1.0.0
+    apiVersion: v1
+    contact:
+      name: 'Ankit Malhotra'
+      email: 'ankimalh@cisco.com'
+    tags:
+      - platform
+      - linter
+      - api
+    documentation:
+      Home: linter/home.md
+    
+    
