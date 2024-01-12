@@ -110,7 +110,7 @@ jobs:
                       "endpoint": {
                           "deploymentType": "HY",
                           "uri": "https://commerce-dev.cisco.com/api/v2/dv1/api/linter/",
-                          "proxyUri": "http://192.168.1.17:8081/linter",
+                          "proxyUri": "http://192.168.1.17:8081/apilinter",
                           "isCloudHub": null
                       },
                       "technology": "flexGateway",
