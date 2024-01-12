@@ -185,7 +185,7 @@ jobs:
         
           response=$(curl -X POST \
           -H "Content-Type: application/json" \
-          -H 'Authorization: Bearer 1460d3e9-61d2-4b94-80a5-d491b1ebfcc1' \
+          -H 'Authorization: Bearer de05eb1f-bc88-4f61-bcab-4441af18868b' \
           -d '[
                 {
                   "assetId": "petstore",  
@@ -207,7 +207,7 @@ jobs:
           response=$(curl -X PATCH \
             'https://anypoint.mulesoft.com/api-experience-hub/api/v1/connections/e3973a31-6c43-4213-96ff-edd26489e009/apiPortals/e223f805-6952-442a-8ee6-cd34eca60c14/assets/4fb9ddb8-947e-4547-a309-031906fce82c/shipping-api' \
             -H 'Content-Type: application/json' \
-            -H 'Authorization: Bearer 3d434001-589d-45fb-a198-2681612d8fca' \
+            -H 'Authorization: Bearer de05eb1f-bc88-4f61-bcab-4441af18868b' \
             -d '{
                 "instancesVisibility": "Public",
                 "minorVersions": [
