@@ -188,7 +188,7 @@ jobs:
           -H 'Authorization: Bearer de05eb1f-bc88-4f61-bcab-4441af18868b' \
           -d '[
                 {
-                  "assetId": "petstore",  
+                  "assetId": "api-linter-oas-spec",  
                   "groupId": "'"${ANYPOINT_ORG}"'"
                 }
               ]' \
@@ -205,7 +205,7 @@ jobs:
             echo "HTTP Response Code: $http_code - Success"
             sleep 5
           response=$(curl -X PATCH \
-            'https://anypoint.mulesoft.com/api-experience-hub/api/v1/connections/e3973a31-6c43-4213-96ff-edd26489e009/apiPortals/e223f805-6952-442a-8ee6-cd34eca60c14/assets/4fb9ddb8-947e-4547-a309-031906fce82c/shipping-api' \
+            'https://anypoint.mulesoft.com/api-experience-hub/api/v1/connections/e3973a31-6c43-4213-96ff-edd26489e009/apiPortals/e223f805-6952-442a-8ee6-cd34eca60c14/assets/4fb9ddb8-947e-4547-a309-031906fce82c/api-linter-oas-spec' \
             -H 'Content-Type: application/json' \
             -H 'Authorization: Bearer de05eb1f-bc88-4f61-bcab-4441af18868b' \
             -d '{
