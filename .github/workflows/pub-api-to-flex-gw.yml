@@ -6,7 +6,7 @@ on:
       - main
 env:
   FLEX_VERSION: '1.3.0'
-  GATEWAY_NAME: 'flex-gw-1'
+  GATEWAY_NAME: 'commerce-dev'
   ANYPOINT_CLIENT_ID: ${{ secrets.ANYPOINT_CLIENT_ID }}
   ANYPOINT_CLIENT_SECRET: ${{ secrets.ANYPOINT_CLIENT_SECRET }}
   ANYPOINT_ORG: ${{ secrets.ANYPOINT_ORG }}
@@ -178,53 +178,53 @@ jobs:
           fi
           set +x
 
-      - name: Migrate to AEH and set visibility to Member
-        run: |
-          asset_id=$ASSET_ID
-          echo "$asset_id"
+      # - name: Migrate to AEH and set visibility to Member
+      #   run: |
+      #     asset_id=$ASSET_ID
+      #     echo "$asset_id"
         
-          response=$(curl -X POST \
-          -H "Content-Type: application/json" \
-          -H 'Authorization: Bearer de05eb1f-bc88-4f61-bcab-4441af18868b' \
-          -d '[
-                {
-                  "assetId": "api-linter-oas-spec",  
-                  "groupId": "'"${ANYPOINT_ORG}"'"
-                }
-              ]' \
-          -w "%{http_code}" \
-          -o response.json \
-          https://anypoint.mulesoft.com/api-experience-hub/api/v1/connections/e3973a31-6c43-4213-96ff-edd26489e009/apiPortals/e223f805-6952-442a-8ee6-cd34eca60c14/assets
-          )
+      #     response=$(curl -X POST \
+      #     -H "Content-Type: application/json" \
+      #     -H 'Authorization: Bearer de05eb1f-bc88-4f61-bcab-4441af18868b' \
+      #     -d '[
+      #           {
+      #             "assetId": "api-linter-oas-spec",  
+      #             "groupId": "'"${ANYPOINT_ORG}"'"
+      #           }
+      #         ]' \
+      #     -w "%{http_code}" \
+      #     -o response.json \
+      #     https://anypoint.mulesoft.com/api-experience-hub/api/v1/connections/e3973a31-6c43-4213-96ff-edd26489e009/apiPortals/e223f805-6952-442a-8ee6-cd34eca60c14/assets
+      #     )
 
-          http_code=$(tail -n1 <<< "$response")
+      #     http_code=$(tail -n1 <<< "$response")
 
-          cat response.json 
+      #     cat response.json 
           
-          if [ "$http_code" -eq 200 ]; then
-            echo "HTTP Response Code: $http_code - Success"
-            sleep 5
-          response=$(curl -X PATCH \
-            'https://anypoint.mulesoft.com/api-experience-hub/api/v1/connections/e3973a31-6c43-4213-96ff-edd26489e009/apiPortals/e223f805-6952-442a-8ee6-cd34eca60c14/assets/4fb9ddb8-947e-4547-a309-031906fce82c/api-linter-oas-spec' \
-            -H 'Content-Type: application/json' \
-            -H 'Authorization: Bearer de05eb1f-bc88-4f61-bcab-4441af18868b' \
-            -d '{
-                "instancesVisibility": "Public",
-                "minorVersions": [
-                    {
-                        "minorVersion": "1.0",
-                        "profileVisibility": [
-                            "ba75c943-95d4-4218-b1cb-cae7e9b09154"
-                        ]
-                    }
-                ]
-            }' \
-            -w "%{http_code}" \
-            -o response.json
-          )
+      #     if [ "$http_code" -eq 200 ]; then
+      #       echo "HTTP Response Code: $http_code - Success"
+      #       sleep 5
+      #     response=$(curl -X PATCH \
+      #       'https://anypoint.mulesoft.com/api-experience-hub/api/v1/connections/e3973a31-6c43-4213-96ff-edd26489e009/apiPortals/e223f805-6952-442a-8ee6-cd34eca60c14/assets/4fb9ddb8-947e-4547-a309-031906fce82c/api-linter-oas-spec' \
+      #       -H 'Content-Type: application/json' \
+      #       -H 'Authorization: Bearer de05eb1f-bc88-4f61-bcab-4441af18868b' \
+      #       -d '{
+      #           "instancesVisibility": "Public",
+      #           "minorVersions": [
+      #               {
+      #                   "minorVersion": "1.0",
+      #                   "profileVisibility": [
+      #                       "ba75c943-95d4-4218-b1cb-cae7e9b09154"
+      #                   ]
+      #               }
+      #           ]
+      #       }' \
+      #       -w "%{http_code}" \
+      #       -o response.json
+      #     )
 
               
-          else
-            echo "HTTP Response Code: $http_code - Error"
-            exit 1 
-          fi
+      #     else
+      #       echo "HTTP Response Code: $http_code - Error"
+      #       exit 1 
+      #     fi
