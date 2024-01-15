@@ -18,6 +18,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
+      - name: Check Condition and Exit
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: exit 78  # Use an exit code to terminate the workflow without running subsequent steps
+
       - name: Checkout Repository
         uses: actions/checkout@v2
 
