@@ -140,7 +140,7 @@ jobs:
           status_code=$(curl -s -w "%{http_code}" -o /dev/null --location --request POST "https://anypoint.mulesoft.com/apimanager/api/v1/organizations/$ANYPOINT_ORG/environments/$ANYPOINT_ENVIRONMENT/apis/${api_response}/policies" \
             --header "Authorization: Bearer $login_response" \
             --header "Content-Type: application/json" \
-            # --data '{
+            --data '{
             #   "configurationData": {
             #     "username": "user",
             #     "password": "test"
