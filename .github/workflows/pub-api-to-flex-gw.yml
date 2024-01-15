@@ -146,7 +146,7 @@ jobs:
             #     "password": "test"
             #   },
               "pointcutData": null,
-              "assetId": "external-oauth2-access-token-enforcement",
+              "assetId": "openidconnect-access-token-enforcement",
               "assetVersion": "1.5.1",
               "groupId": "68ef9520-24e9-4cf2-b2f5-620025690913"
             }')
