@@ -69,8 +69,11 @@ jobs:
           echo "Constructed URL: $URL"
           
           response=$(anypoint-cli-v4 governance api validate --client_id=$ANYPOINT_CLIENT_ID --client_secret=$ANYPOINT_CLIENT_SECRET --organization=$ANYPOINT_ORG $URL --remote-rulesets 68ef9520-24e9-4cf2-b2f5-620025690913/https-enforcement/1.1.1 --remote)
-           status_code=$(echo "${response: -3}") # Extracting the status code from the response
+          status_code=$(echo "${response: -3}") # Extracting the status code from the response
 
+          echo "$response"
+          echo "$status_code"
+          
           if [ $status_code -gt 399 ]; then
             echo "Anypoint login failed"
             exit 1
