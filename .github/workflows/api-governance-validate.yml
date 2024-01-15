@@ -1,4 +1,4 @@
-name: Publish to MuleSoft Exchange
+name: API Governance Validate
 
 on:
   pull_request:
