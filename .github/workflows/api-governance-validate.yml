@@ -1,93 +1,93 @@
-name: Publish to MuleSoft Exchange
+# name: Publish to MuleSoft Exchange
 
-on:
-  pull_request:
-    types:
-      - opened
+# on:
+#   pull_request:
+#     types:
+#       - opened
       
-env:
-  FLEX_VERSION: '1.3.0'
-  GATEWAY_NAME: 'commerce-dev'
-  ANYPOINT_CLIENT_ID: ${{ secrets.ANYPOINT_CLIENT_ID }}
-  ANYPOINT_CLIENT_SECRET: ${{ secrets.ANYPOINT_CLIENT_SECRET }}
-  ANYPOINT_ORG: ${{ secrets.ANYPOINT_ORG }}
-  ANYPOINT_ENVIRONMENT: ${{ secrets.ANYPOINT_ENVIRONMENT }}
-  FLEX_GW_AGENT_ID: ${{ secrets.FLEX_GW_AGENT_ID }}
+# env:
+#   FLEX_VERSION: '1.3.0'
+#   GATEWAY_NAME: 'commerce-dev'
+#   ANYPOINT_CLIENT_ID: ${{ secrets.ANYPOINT_CLIENT_ID }}
+#   ANYPOINT_CLIENT_SECRET: ${{ secrets.ANYPOINT_CLIENT_SECRET }}
+#   ANYPOINT_ORG: ${{ secrets.ANYPOINT_ORG }}
+#   ANYPOINT_ENVIRONMENT: ${{ secrets.ANYPOINT_ENVIRONMENT }}
+#   FLEX_GW_AGENT_ID: ${{ secrets.FLEX_GW_AGENT_ID }}
 
-jobs:
-  publish:
-    runs-on: ubuntu-latest
+# jobs:
+#   publish:
+#     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+#     steps:
+#       - name: Checkout Repository
+#         uses: actions/checkout@v2
 
-      - name: Install jq
-        run: sudo apt-get install jq
+#       - name: Install jq
+#         run: sudo apt-get install jq
           
-      - name: Install api-catalog cli
-        run: |
-          sudo apt-get update
-          npm install -g api-catalog-cli@latest
+#       - name: Install api-catalog cli
+#         run: |
+#           sudo apt-get update
+#           npm install -g api-catalog-cli@latest
 
-      - name: Publish to MuleSoft Exchange
-        run: | 
-          response=$(api-catalog publish-asset --host=anypoint.mulesoft.com -d catalog.yaml --organization=$ANYPOINT_ORG --client_id $ANYPOINT_CLIENT_ID --client_secret $ANYPOINT_CLIENT_SECRET)
+#       - name: Publish to MuleSoft Exchange
+#         run: | 
+#           response=$(api-catalog publish-asset --host=anypoint.mulesoft.com -d catalog.yaml --organization=$ANYPOINT_ORG --client_id $ANYPOINT_CLIENT_ID --client_secret $ANYPOINT_CLIENT_SECRET)
 
-          echo "$response"
+#           echo "$response"
           
-          # Capture Asset ID
-          asset_id=$(echo "$response" | awk '/Asset ID:/ {print $NF}')
-          echo "Asset_ID: $asset_id"
-          # echo "::set-output name=asset_id::$asset_id"
+#           # Capture Asset ID
+#           asset_id=$(echo "$response" | awk '/Asset ID:/ {print $NF}')
+#           echo "Asset_ID: $asset_id"
+#           # echo "::set-output name=asset_id::$asset_id"
 
-          # Capture Version
-          version=$(echo "$response" | awk '/Version:/ {print $NF}')
-          echo "Version: $version"
-          # echo "::set-output name=version::$version"
+#           # Capture Version
+#           version=$(echo "$response" | awk '/Version:/ {print $NF}')
+#           echo "Version: $version"
+#           # echo "::set-output name=version::$version"
 
-          echo "ASSET_ID=$asset_id" >> $GITHUB_ENV
-          echo "VERSION=$version" >> $GITHUB_ENV
+#           echo "ASSET_ID=$asset_id" >> $GITHUB_ENV
+#           echo "VERSION=$version" >> $GITHUB_ENV
 
-      - name: Install anypoint-cli-v4 cli
-        run: |
-          npm i -g anypoint-cli-v4
-          anypoint-cli-v4 plugins:install anypoint-cli-governance-plugin      
+#       - name: Install anypoint-cli-v4 cli
+#         run: |
+#           npm i -g anypoint-cli-v4
+#           anypoint-cli-v4 plugins:install anypoint-cli-governance-plugin      
 
-      - name: API Governance
-        run: |
+#       - name: API Governance
+#         run: |
 
-          asset_id=$ASSET_ID
-          version=$VERSION
+#           asset_id=$ASSET_ID
+#           version=$VERSION
           
-          echo "$asset_id"
-          echo "$version"
+#           echo "$asset_id"
+#           echo "$version"
 
-          # Construct the URL
-          URL=$ANYPOINT_ORG/$asset_id/$version
+#           # Construct the URL
+#           URL=$ANYPOINT_ORG/$asset_id/$version
 
-          echo "Constructed URL: $URL"
+#           echo "Constructed URL: $URL"
           
-          response=$(anypoint-cli-v4 governance api validate --client_id=$ANYPOINT_CLIENT_ID --client_secret=$ANYPOINT_CLIENT_SECRET --organization=$ANYPOINT_ORG $URL --remote-rulesets 68ef9520-24e9-4cf2-b2f5-620025690913/https-enforcement/1.1.1 --remote)
-          status_code=$(echo "${response: -3}") # Extracting the status code from the response
+#           response=$(anypoint-cli-v4 governance api validate --client_id=$ANYPOINT_CLIENT_ID --client_secret=$ANYPOINT_CLIENT_SECRET --organization=$ANYPOINT_ORG $URL --remote-rulesets 68ef9520-24e9-4cf2-b2f5-620025690913/https-enforcement/1.1.1 --remote)
+#           status_code=$(echo "${response: -3}") # Extracting the status code from the response
 
-          echo "$response"
-          echo "$status_code"
+#           echo "$response"
+#           echo "$status_code"
 
-          # Extracting and displaying relevant information using jq
-          actual=$(echo "$response" | jq -r '.[0] | .["doc:encodes"][0]["conforms"][0]["trace"][0]["traceValue"]["actual"]')
-          expected=$(echo "$response" | jq -r '.[0] | .["doc:encodes"][0]["conforms"][0]["trace"][0]["traceValue"]["expected"]')
-          resultMessage=$(echo "$response" | jq -r '.[0] | .["doc:encodes"][0]["conforms"][0]["result"][0]["resultMessage"]')
-          resultSeverity=$(echo "$response" | jq -r '.[0] | .["doc:encodes"][0]["conforms"][0]["result"][0]["resultSeverity"]')
+#           # Extracting and displaying relevant information using jq
+#           actual=$(echo "$response" | jq -r '.[0] | .["doc:encodes"][0]["conforms"][0]["trace"][0]["traceValue"]["actual"]')
+#           expected=$(echo "$response" | jq -r '.[0] | .["doc:encodes"][0]["conforms"][0]["trace"][0]["traceValue"]["expected"]')
+#           resultMessage=$(echo "$response" | jq -r '.[0] | .["doc:encodes"][0]["conforms"][0]["result"][0]["resultMessage"]')
+#           resultSeverity=$(echo "$response" | jq -r '.[0] | .["doc:encodes"][0]["conforms"][0]["result"][0]["resultSeverity"]')
 
-          echo "Actual: $actual"
-          echo "Expected: $expected"
-          echo "Result Message: $resultMessage"
-          echo "Result Severity: $resultSeverity"   
+#           echo "Actual: $actual"
+#           echo "Expected: $expected"
+#           echo "Result Message: $resultMessage"
+#           echo "Result Severity: $resultSeverity"   
 
-          # Check if the error message exists in the response
-          if [[ "$response" == *"Spec does not conform with Ruleset"* ]]; then
-            echo "Validation failed: Spec does not conform with Ruleset"
-            exit 1  # Exit with a non-zero code to indicate failure
-          fi
+#           # Check if the error message exists in the response
+#           if [[ "$response" == *"Spec does not conform with Ruleset"* ]]; then
+#             echo "Validation failed: Spec does not conform with Ruleset"
+#             exit 1  # Exit with a non-zero code to indicate failure
+#           fi
 
