@@ -23,6 +23,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
 
       - name: Install jq
         run: sudo apt-get install jq
