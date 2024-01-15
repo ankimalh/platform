@@ -141,12 +141,16 @@ jobs:
             --header "Authorization: Bearer $login_response" \
             --header "Content-Type: application/json" \
             --data '{
-            #   "configurationData": {
-            #     "username": "user",
-            #     "password": "test"
-            #   },
+              "configurationData": {
+                "authenticationTimeout": 10000,
+                "scopes": "read write",
+                "secureTrustStore": false,
+                "scopeValidationCriteria": "OR",
+                "exposeHeaders": true,
+                "skipClientIdValidation": false
+               },
               "pointcutData": null,
-              "assetId": "openidconnect-access-token-enforcement",
+              "assetId": "openidconnect-access-token-enforcement-flex",
               "assetVersion": "1.5.1",
               "groupId": "68ef9520-24e9-4cf2-b2f5-620025690913"
             }')
@@ -154,7 +158,7 @@ jobs:
           echo "Command output: $status_code"
       
           if [ $status_code -gt 399 ]; then
-            echo "Error occurred while trying to apply Basic Auth Policy to the API instance"
+            echo "Error occurred while trying to apply openidconnect-access-token-enforcement-flex to the API instance"
             exit 1
           fi
 
