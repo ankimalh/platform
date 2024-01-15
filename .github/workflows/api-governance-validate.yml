@@ -74,13 +74,6 @@ jobs:
           echo "$response"
           echo "$status_code"
 
-          # Check if the error message exists in the response
-          if [[ "$response" == *"Spec does not conform with Ruleset"* ]]; then
-            echo "Validation failed: Spec does not conform with Ruleset"
-            exit 1  # Exit with a non-zero code to indicate failure
-          fi
-
-
           # Extracting and displaying relevant information using jq
           actual=$(echo "$response" | jq -r '.[0] | .["doc:encodes"][0]["conforms"][0]["trace"][0]["traceValue"]["actual"]')
           expected=$(echo "$response" | jq -r '.[0] | .["doc:encodes"][0]["conforms"][0]["trace"][0]["traceValue"]["expected"]')
@@ -90,9 +83,11 @@ jobs:
           echo "Actual: $actual"
           echo "Expected: $expected"
           echo "Result Message: $resultMessage"
-          echo "Result Severity: $resultSeverity"          
-          
-          # if [ $status_code -gt 399 ]; then
-          #   echo "Anypoint login failed"
-          #   exit 1
-          # fi
+          echo "Result Severity: $resultSeverity"   
+
+          # Check if the error message exists in the response
+          if [[ "$response" == *"Spec does not conform with Ruleset"* ]]; then
+            echo "Validation failed: Spec does not conform with Ruleset"
+            exit 1  # Exit with a non-zero code to indicate failure
+          fi
+
