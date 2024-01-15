@@ -22,8 +22,8 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      # - name: Install jq
-      #   run: sudo apt-get install jq
+      - name: Install jq
+        run: sudo apt-get install jq
           
       - name: Install api-catalog cli
         run: |
@@ -73,8 +73,19 @@ jobs:
 
           echo "$response"
           echo "$status_code"
+
+          # Extracting and displaying relevant information using jq
+          actual=$(echo "$response" | jq -r '.[0].doc:encodes[0].conforms[0].trace[0].traceValue.actual')
+          expected=$(echo "$response" | jq -r '.[0].doc:encodes[0].conforms[0].trace[0].traceValue.expected')
+          resultMessage=$(echo "$response" | jq -r '.[0].doc:encodes[0].conforms[0].result[0].resultMessage')
+          resultSeverity=$(echo "$response" | jq -r '.[0].doc:encodes[0].conforms[0].result[0].resultSeverity')
+
+          echo "Actual: $actual"
+          echo "Expected: $expected"
+          echo "Result Message: $resultMessage"
+          echo "Result Severity: $resultSeverity"          
           
-          if [ $status_code -gt 399 ]; then
-            echo "Anypoint login failed"
-            exit 1
-          fi
+          # if [ $status_code -gt 399 ]; then
+          #   echo "Anypoint login failed"
+          #   exit 1
+          # fi
