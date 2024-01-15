@@ -143,14 +143,12 @@ jobs:
             --data '{
               "configurationData": {
                 "authenticationTimeout": 10000,
-                "scopes": "READ AND WRITE",
-                "secureTrustStore": false,
                 "scopeValidationCriteria": "OR",
-                "exposeHeaders": true,
+                "exposeHeaders": false,
                 "skipClientIdValidation": false
                },
-              "assetId": "openidconnect-access-token-enforcement-flex",
-              "assetVersion": "1.5.1",
+              "assetId": "openidconnect-access-token-enforcement",
+              "assetVersion": "0.9.0",
               "groupId": "68ef9520-24e9-4cf2-b2f5-620025690913"
             }')
       
