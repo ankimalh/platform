@@ -5,7 +5,7 @@ on:
     types:
       - opened
     branches:
-      - features*
+      - feature/*
 
       
 env:
