@@ -9,6 +9,12 @@
     },
     "description": "Perform API specification Lint and measure Score"
   },
+  "servers": [
+    {
+      "url": "http://flexapi-dev.cisco.com/commerce/dev/platform/linter/",
+      "description": "HTTP server"
+    }
+  ],
   "paths": {
     "/score": {
       "post": {
