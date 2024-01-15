@@ -2,8 +2,6 @@ name: API Governance Validate
 
 on:
   pull_request:
-    types:
-      - opened
     branches:
       - feature/*
 
