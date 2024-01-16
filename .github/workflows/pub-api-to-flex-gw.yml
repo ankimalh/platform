@@ -115,10 +115,11 @@ jobs:
                       "endpoint": {
                           "deploymentType": "HY",
                           "uri": "https://commerce-dev.cisco.com/api/v2/dv1/api/linter/",
-                          "proxyUri": "http://0.0.0.0:80/commerce/dev/platform/linter/",
+                          "proxyUri": "http://0.0.0.0:80/commerce/dev/platform/api/linter/",
                           "isCloudHub": null
                       },
-                      "technology": "flexGateway"
+                      "technology": "flexGateway",
+                      "endpointUri": "http://flexapi-dev.cisco.com/commerce/dev/platform/api/linter/"
                     }')
           echo "Command output: $response"
           status_code=$(echo "${response: -3}") # Extracting the status code from the response
