@@ -11,7 +11,7 @@
   },
   "servers": [
     {
-      "url": "https://flexapi-dev.cisco.com/commerce/dev/platform/linter/",
+      "url": "http://flexapi-dev.cisco.com/commerce/dev/platform/linter/",
       "description": "HTTP server"
     }
   ],
