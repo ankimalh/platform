@@ -2,8 +2,10 @@ name: API Governance Validate
 
 on:
   pull_request:
-    types:
-      - opened
+    branches:
+      - main
+    paths:
+      - 'feature-https/**'
       
 env:
   FLEX_VERSION: '1.3.0'
