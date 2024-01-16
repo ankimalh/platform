@@ -4,10 +4,6 @@ on:
   pull_request:
     types:
       - opened
-    branches:
-      - 'feature-https/**'
-    paths:
-      - '**.json'
       
 env:
   FLEX_VERSION: '1.3.0'
