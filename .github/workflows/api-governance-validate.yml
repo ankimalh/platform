@@ -70,7 +70,7 @@ jobs:
 
           echo "Constructed URL: $URL"
           
-          response=$(anypoint-cli-v4 governance api validate --client_id=$ANYPOINT_CLIENT_ID --client_secret=$ANYPOINT_CLIENT_SECRET --organization=$ANYPOINT_ORG $URL --remote-rulesets 68ef9520-24e9-4cf2-b2f5-620025690913/openapi-best-practices/1.1 --remote)
+          response=$(anypoint-cli-v4 governance api validate --client_id=$ANYPOINT_CLIENT_ID --client_secret=$ANYPOINT_CLIENT_SECRET --organization=$ANYPOINT_ORG $URL --remote-rulesets 68ef9520-24e9-4cf2-b2f5-620025690913/openapi-best-practices/1.1.0 --remote)
           status_code=$(echo "${response: -3}") # Extracting the status code from the response
 
           echo "$response"
