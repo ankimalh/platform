@@ -182,13 +182,7 @@ jobs:
             echo "Error occurred while trying to deploy the API instance"
             exit 1
           fi
-          set +x
-
-      - name: Publish new API PubHub documentation site
-        run: echo "This step is not implemented"
-
-      - name: Update Sub-domain PubHub Page
-        run: echo "This step is not implemented"        
+          set +x     
 
       # - name: Migrate to AEH and set visibility to Member
       #   run: |
