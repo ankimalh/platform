@@ -56,7 +56,7 @@ jobs:
           npm i -g anypoint-cli-v4
           anypoint-cli-v4 plugins:install anypoint-cli-governance-plugin      
 
-      - name: API Governance - Https Enforcement
+      - name: API Governance - HTTPS Validate
         run: |
 
           asset_id=$ASSET_ID
