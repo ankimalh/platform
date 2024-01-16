@@ -184,6 +184,12 @@ jobs:
           fi
           set +x
 
+      - name: Publish new API PubHub documentation site
+        run: echo "This step is not implemented"
+
+      - name: Update Sub-domain PubHub Page
+        run: echo "This step is not implemented"        
+
       # - name: Migrate to AEH and set visibility to Member
       #   run: |
       #     asset_id=$ASSET_ID
