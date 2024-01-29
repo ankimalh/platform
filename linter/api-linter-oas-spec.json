@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "API Linter",
-    "version": "1.0.8",
+    "version": "1.0.10",
     "contact": {
       "name": "Ankit Malhotra",
       "email": "ankimalh@cisco.com"
