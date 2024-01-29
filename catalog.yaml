@@ -2,7 +2,7 @@
 projects:
   - main: linter/api-linter-oas-spec.json
     assetId: api-linter-oas-spec
-    version: 1.0.1
+    version: 1.0.2
     apiVersion: v1
     contact:
       name: 'Ankit Malhotra'
